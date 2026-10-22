@@ -1,6 +1,12 @@
 # FreeUpscaler Clone (AI In-Browser Image & Video Upscaler)
 
-Replicación autónoma de alta fidelidad de [freeupscaler.app](https://freeupscaler.app/), construida mediante ingeniería inversa de su arquitectura web client-side con **WebGPU**, **ONNX Runtime Web**, **WebSR (Anime4K)** y **WebCodecs (Mediabunny)**.
+[![Production](https://img.shields.io/badge/Vercel-Live%20Demo-black?logo=vercel)](https://freeupscaler-clone.vercel.app)
+[![WebGPU](https://img.shields.io/badge/Acceleration-WebGPU-blue?logo=webassembly)](https://freeupscaler-clone.vercel.app)
+[![License: MIT](https://img.shields.io/badge/License-MIT-emerald.svg)](LICENSE)
+
+Replicación autónoma de alta fidelidad y nivel SaaS profesional de [freeupscaler.app](https://freeupscaler.app/), construida mediante ingeniería inversa de su arquitectura web client-side con **WebGPU**, **ONNX Runtime Web**, **WebSR (Anime4K)** y **WebCodecs (Mediabunny)**.
+
+🌐 **Demo en Producción**: [https://freeupscaler-clone.vercel.app](https://freeupscaler-clone.vercel.app)
 
 ---
 
@@ -17,11 +23,16 @@ Replicación autónoma de alta fidelidad de [freeupscaler.app](https://freeupsca
   - Transcodificación por hardware: `mediabunny` sobre **WebCodecs** (`VideoDecoder`, `VideoEncoder`, `CanvasSource`).
   - Sincronización de Audio: Copia intacta de flujos AAC/Opus originales mediante `EncodedAudioPacketSource` y `EncodedPacketSink`.
   - Modo compatibilidad: Degradación automática a canvas 2D si el hardware no dispone de WebGPU.
-- **UI & UX de Nivel Profesional**:
-  - Slider interactivo de comparación antes/después (*split-view*).
-  - Selector de modo (Imágenes / Videos) y factor de escala (2x / 4x).
-  - Barra de progreso por etapas (*Loading*, *Upscaling*, *Finalizing*).
-  - Detector en tiempo real de compatibilidad con WebGPU en la barra superior.
+- **UI & UX de Nivel SaaS Profesional**:
+  - **Galería de Muestras Rápidas**: Prueba en 1 clic con 4 presets de prueba (Retrato, Mascota, Producto, Objeto).
+  - **Soporte de Portapapeles**: Pega directamente cualquier captura con `Cmd+V` / `Ctrl+V`.
+  - **Visor Comparativo Multi-Modo**:
+    - *Split-View*: Slider interactivo antes/después con posición porcentual.
+    - *Modo Lupa (Magnifier)*: Lente de aumento 2.5x para inspección de microtexturas.
+    - *Lado a Lado*: Vista paralela simultánea.
+  - **Métricas en Tiempo Real**: Cálculo de resolución y megapíxeles (`0.26 MP` ➔ `4.19 MP`) y latencia de inferencia en segundos.
+  - **Opciones de Exportación**: Descarga en PNG (HD sin compresión), WebP optimizado o Copiar al portapapeles.
+  - **Sección de FAQ interactiva**: Respuestas técnicas sobre WebGPU, seguridad y aislamiento de memoria.
 
 ---
 
@@ -30,16 +41,22 @@ Replicación autónoma de alta fidelidad de [freeupscaler.app](https://freeupsca
 ```
 freeupscaler-clone/
 ├── public/
-│   └── models/
-│       ├── real_esrgan_general_x4v3.onnx   # Grafo ONNX del modelo
-│       └── real_esrgan_general_x4v3.data   # Pesos cuantizados (~4.6 MB)
+│   ├── models/
+│   │   ├── real_esrgan_general_x4v3.onnx   # Grafo ONNX del modelo
+│   │   └── real_esrgan_general_x4v3.data   # Pesos cuantizados (~4.6 MB)
+│   └── samples/                            # Muestras para testing rápido en 1 clic
+│       ├── sample-person.jpg
+│       ├── sample-pet.jpg
+│       ├── sample-product.jpg
+│       └── sample-object.jpg
 ├── src/
 │   ├── components/
-│   │   ├── ComparisonSlider.tsx           # Slider interactivo Antes / Después
-│   │   ├── Dropzone.tsx                   # Zona de arrastre y validación de archivos
-│   │   ├── ImageUpscaler.tsx              # Flujo principal de imágenes
+│   │   ├── ComparisonSlider.tsx           # Slider interactivo (Split, Lupa, Side-by-Side)
+│   │   ├── Dropzone.tsx                   # Zona de arrastre, paste clipboard y samples
+│   │   ├── FaqSection.tsx                 # Preguntas frecuentes técnicas interactivas
+│   │   ├── ImageUpscaler.tsx              # Flujo principal de imágenes y métricas
 │   │   ├── Navbar.tsx                     # Barra superior con detector WebGPU
-│   │   ├── ProgressBar.tsx                # Indicador de progreso de inferencia
+│   │   ├── ProgressBar.tsx                # Indicador de progreso de inferencia y etapas
 │   │   └── VideoUpscaler.tsx              # Flujo principal de videos
 │   ├── types/
 │   │   └── worker.ts                      # Interfaces y tipos compartidos
@@ -48,10 +65,11 @@ freeupscaler-clone/
 │   │   ├── real-esrgan.ts                 # Algoritmo de tiling y sesión ONNX WebGPU
 │   │   └── video.worker.ts                # Web Worker WebSR + WebCodecs (Videos)
 │   ├── App.tsx                            # Contenedor y vistas
-│   ├── index.css                          # Estilos Tailwind CSS
+│   ├── index.css                          # Estilos Tailwind CSS y patrones visuales
 │   └── main.tsx                           # Punto de entrada React
 ├── package.json
 ├── tsconfig.json
+├── vercel.json                            # Configuración de headers COOP/COEP y cache
 └── vite.config.ts
 ```
 
@@ -65,7 +83,8 @@ freeupscaler-clone/
 
 ### 1. Clonar / Navegar al directorio
 ```bash
-cd /Users/kikiortega/.gemini/antigravity/scratch/freeupscaler-clone
+git clone https://github.com/Kikisafeia/freeupscaler-clone.git
+cd freeupscaler-clone
 ```
 
 ### 2. Instalar dependencias
@@ -83,7 +102,6 @@ Abre en tu navegador `http://localhost:5173`.
 ```bash
 npm run build
 ```
-Los archivos estáticos listos para producción se generan en la carpeta `dist/`. Puedes desplegarlos en cualquier CDN estático (Vercel, Cloudflare Pages, Netlify, GitHub Pages, etc.).
 
 ---
 
